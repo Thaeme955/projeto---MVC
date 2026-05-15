@@ -19,5 +19,5 @@ python -m alembic revision --autogenerate -m "Criar tabela usuarios"
 ```
 # Apliar a migration no banco
 ```bash
-python -m alembic upgrad head
+python -m alembic upgrade head  
 ```
