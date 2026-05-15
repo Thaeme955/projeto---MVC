@@ -1,0 +1,68 @@
+# Rotas de autenticação vai ficar aqui
+
+from fastapi import APIRouter, Request, Depends, Form, status
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.moldels.usuarios import Usuario
+from app.auth import hash_senha, verificar_senha, criar_token
+
+# APIRouter agrupa as rotas dentro desse modulo com o prefixo/ auth
+router = APIRouter(prefix="/auth", tags=["Autentificação"])
+
+# Configurar o jinja2 para renderizar html
+templates = Jinja2Templates(directory="app/templates")
+
+# Tela de cadastro 
+@router.get("/cadastro")
+def tela_cadastro(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "auth/cadastro.html",
+        {"request": request}
+    )
+    
+    
+# Tela de login 
+@router.get("/login")
+def tela_login(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "auth/login.html",
+        {"request": request}
+    )
+    
+
+#Rota para criar o ususario 
+@router.post("/cadastro")
+def fazer_cadastro(
+    request: Request,
+    nome: str = Form(...),
+    email: str = Form(...),
+    senha: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    #Verificar se o email ja esta cadastrado
+    usuario_existente = db.query(Usuario).filter(Usuario.email == email).first()
+
+    #Mensagem de erro se o email ja estiver em uso
+    if usuario_existente:
+        return templates.TemplateResponse(
+            request,
+            "auth/cadastro.html",
+            {
+                "request": request,
+                "erro": "Email já cadastrado. Por favor, use outro email."
+            }
+        )
+    #Criar o usuario - criar o objeto 
+    novo_usuario = Usuario(
+        nome=nome,
+        email=email,
+        senha_hash= senha
+    )
+
+    db.add(novo_usuario)
+    db.commit()
