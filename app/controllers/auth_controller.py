@@ -61,8 +61,10 @@ def fazer_cadastro(
     novo_usuario = Usuario(
         nome=nome,
         email=email,
-        senha_hash= senha
+        senha_hash=hash_senha(senha)
     )
 
     db.add(novo_usuario)
-    db.commit()
+    db.commit()                         
+
+    return RedirectResponse(url="/auth/login", status_code=status.HTTP_302_FOUND)
