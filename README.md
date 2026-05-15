@@ -12,3 +12,12 @@ python -m alembic init migrations
 
 # editar o arquivo alembic init - na linha 89: 
 sqlalchemy.url =
+
+# Aplicar a migration no banco 
+```bash
+python -m alembic revision --autogenerate -m "Criar tabela usuarios"
+```
+# Apliar a migration no banco
+```bash
+python -m alembic upgrad head
+```
